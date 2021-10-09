@@ -75,16 +75,11 @@ def fonction_filtrage(question):
     reponse = {}
     compteur_article = 0
     filtrage = list(filter(lambda x: question.lower() in x, titre))
-
-    # for question in filtrage:     était inutile et empéchait le print 'aucune recherche"
-
     if not filtrage:
         print("Aucune recherche correspondante"
               ""
               "")
         resultat_nul = ("FIN DE RECHERCHE")
-
-        # boucle while à créer ici pour éviter la sortie du programme..
         print(resultat_nul)
         exit()  # exit évite que la boucle while pour l'ouverture se déclenche ligne 99
 
@@ -94,11 +89,9 @@ def fonction_filtrage(question):
             compteur_article += 1
             url_browser.append(dictionnaire_titre_et_lien[element])
             reponse[compteur_article] = (f"{element} : {dictionnaire_titre_et_lien[element]}")
-
     for k, v in reponse.items():
         print(f'{k} -> {v}')
         print('')
-
     return reponse
 
 
@@ -111,16 +104,11 @@ def open_url(ouverture):
                         "")
         print(resultat_nul)
 
-
 question = input('entrez une recherche : ')
 reponse_filtrage = fonction_filtrage(question)
-
 choice_open_urls = False
-
 while choice_open_urls == False:
-
     ouverture = input("Voulez vous ouvrir les liens ? : O/N ")
-
     if ouverture:
         open_url(ouverture)
         choice_open_urls = True
@@ -132,13 +120,9 @@ def in_or_out(stay):
     if stay == "o" or stay == "O":
         question = input('entrez une recherche : ')
         reponse_filtrage = fonction_filtrage(question)
-
         choice_open_urls = False
-
         while choice_open_urls == False:
-
             ouverture = input("Voulez vous ouvrir les liens ? : O/N ")
-
             if ouverture:
                 open_url(ouverture)
                 choice_open_urls = True
