@@ -1,23 +1,50 @@
 import feedparser
-from bs4 import BeautifulSoup
+import webbrowser
+import csv
 
 # on défini le flux rss a parser
 
-Urls_de_ressources = ["https://feeds.leparisien.fr/leparisien/rss/","https://www.lefigaro.fr/rss/figaro_actualites.xml"]
+Urls_de_ressources = ["https://feeds.leparisien.fr/leparisien/rss/",
+                      "https://www.lefigaro.fr/rss/figaro_actualites.xml",
+                      "https://www.lemonde.fr/rss/une.xml",
+                      "https://www.lemonde.fr/international/rss_full.xml",
+                      "https://www.mediapart.fr/articles/feed",
+                      "https://www.lemonde.fr/politique/rss_full.xml",
+                      "https://korben.info/feed",
+                      "https://www.francebleu.fr/rss/rcfm/a-la-une.xml",
+                      "https://www.francebleu.fr/rss/rcfm/rubrique/vie-quotidienne.xml",
+                      "https://www.courrierinternational.com/feed/category/6678/rss.xml"
+                      ",https://www.courrierinternational.com/feed/category/6678/rss.xml"
+                      "https://www.courrierinternational.com/feed/category/6679/rss.xml",
+                      "https://www.courrierinternational.com/feed/category/6681/rss.xml",
+                      "https://www.courrierinternational.com/feed/category/6263/rss.xml",
+                      "https://www.courrierinternational.com/feed/category/6260/rss.xml",
+                      "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
+                      "http://www.lepoint.fr/politique/rss.xml",
+                      "https://reflets.info/feeds/public",
+                      "https://www.afp.com/fr/actus/afp_actualite/792,31,9,7,33/feed"
+                      "https://news.google.com/rss/search?q=source:bloomberg&um=1&ie=UTF-8&num=100&hl=en-US&gl=US&ceid=US:en",
+                      "https://www.linfokwezi.fr/feed/"
+
+                      ]
 
 # la liste titre contiendra tout les titres
 titre = []
+
 # la liste link contientra tout les liens
 lien = []
 
 # on créer un dictionnaire  à partir des précédentes listes
 dictionnaire_titre_et_lien = []
 
-
 # cette liste contiendra les titres obtenus suite à la recherche demandée, ces titres seront les clefs du dictionnaire
-#pour permettre de retrouver les valeurs.
+# pour permettre de retrouver les valeurs.
 titres_obtenus = []
 
+# cette liste contiendra les urls retournés par la recherche afin qu'ils puissent être ouvert sur demande.
+url_browser = []
+
+print("Patientez ça mouline....")
 
 # on parler les liens souhaités pour alimenter nos listes puis notre dictionnaire.
 for rss in Urls_de_ressources:
@@ -25,65 +52,124 @@ for rss in Urls_de_ressources:
 
     # On boucle sur le flux pour récolter les titre et les liens
     for entry in feed.entries:
-
         # On collecte tous les titres et on les ajoute à la liste concernée
         title = entry.title
-        titre.append(title)
+        titre.append(title.lower())
 
         # On collecte tous les liens et on les ajoute à la liste concerncée
         link = entry.link
         lien.append(link)
 
         # on crée un dictionnaire avec les information collectées.
-        dictionnaire_titre_et_lien = dict(zip(titre,lien))
-
+        dictionnaire_titre_et_lien = dict(zip(titre, lien))
 
 print("***************************************************"
       "")
-print("              DICTIONNAIRE CREE                    ")
+print("          BASE DE RECHERCHE CONSTITUTEE           ")
 print("***************************************************"
       "")
-
 
 # on demande la recherche souhaité
 
-question = input('entrez une recherche : ')
 
 print(""
       "")
 
-#création d'un compteur d'article
 
-compteur_article = 0
+def fonction_filtrage(question):
+    reponse = {}
+    compteur_article = 0
+    filtrage = list(filter(lambda x: question.lower() in x, titre))
 
+    # for question in filtrage:     était inutile et empéchait le print 'aucune recherche"
 
-# on filtre la recherche dans la liste de titre qu'on a préalablement obtenu. on applique les methodes de casse
-# pour être sur que tous titres soient bien retournés.
+    if not filtrage:
+        print("Aucune recherche correspondante"
+              ""
+              "")
+        resultat_nul = ("FIN DE RECHERCHE")
 
-
-filtrage_upper = list(filter( lambda x: question.upper() in x, titre))
-filtrage_lower = list(filter( lambda x: question.lower() in x, titre))
-filtrage_capitalize = list(filter( lambda x: question.capitalize() in x, titre))
-
-
-# on boucle pour obtenir chaque élément de la liste de titre correspondant à la recherche. s'il n'y a pas de retour dans
-# les trois première boucles c'est que qu'il n'y a pas d'article correspondant à la recherche.
-
-for element_lower in filtrage_lower:
-    compteur_article+=1
-    print(f'{compteur_article} :  {element_lower} : {dictionnaire_titre_et_lien[element_lower]}\n')
-
-for element_upper in filtrage_upper:
-    compteur_article+=1
-    print(f'{compteur_article} : {element_upper} : {dictionnaire_titre_et_lien[element_upper]} \n')
-
-for element_capitalize in filtrage_capitalize:
-    compteur_article += 1
-    print(f'{compteur_article} : {element_capitalize} : {dictionnaire_titre_et_lien[element_capitalize]}\n')
+        # boucle while à créer ici pour éviter la sortie du programme..
+        print(resultat_nul)
+        # exit évite que la boucle while pour l'ouverture se déclenche ligne 99
 
 
-if not filtrage_lower and not filtrage_upper and not filtrage_capitalize:
-    print("Aucune recherche correspondante")
+    else:
+        for element in filtrage:
+            compteur_article += 1
+            url_browser.append(dictionnaire_titre_et_lien[element])
+            reponse[f'{compteur_article} {element}'] = (f"{dictionnaire_titre_et_lien[element]}")
+
+    for k, v in reponse.items():
+        print(f' {k} -> {v}')
+        print('')
+
+    return reponse
+
+
+def open_url(ouverture):
+    if ouverture == "o" or ouverture == "O":
+        for element in url_browser:
+            webbrowser.open(element)
+    else:
+        resultat_nul = (" "
+                        "")
+        print(resultat_nul)
+
+
+def in_or_out(stay):
+    if stay == "o" or stay == "O":
+        question = input('entrez une recherche : ')
+        reponse_filtrage = fonction_filtrage(question)
+
+    else:
+        resultat_nul = (""
+                        "")
+        print(resultat_nul)
+        exit()
+
+
+question = input('entrez une recherche : ')
+reponse_filtrage = fonction_filtrage(question)
+
+print(reponse_filtrage.keys())
+print("***********************")
+print(reponse_filtrage.values())
+print("***********************")
+
+
+def ecriture_csv(reponse_filtrage):
+    with open(f'{question}.csv', "w") as file:
+        writer = csv.DictWriter(file, fieldnames=titres_obtenus)
+        writer.writeheader()
+        writer.writerow(reponse_filtrage)
+    return reponse_filtrage
+
+
+for element in reponse_filtrage:
+    ecriture_csv(reponse_filtrage[element])
 
 
 
+
+"""
+while reponse_filtrage:
+    ouverture = input("Voulez vous ouvrir les liens ? : O/N ")
+    if ouverture:
+        open_url(ouverture)
+        new_search = input("Voulez vous effectuer une nouvelle recherche: O/N ")
+        if new_search:
+            in_or_out(new_search)
+        else:
+            exit()
+
+while not reponse_filtrage:
+    new_search = input("Voulez vous effectuer une nouvelle recherche: O/N ")
+    if new_search:
+        in_or_out(new_search)
+        ouverture = input("Voulez vous ouvrir les liens ? : O/N ")
+        if ouverture:
+            open_url(ouverture)
+        else:
+            exit()
+"""
