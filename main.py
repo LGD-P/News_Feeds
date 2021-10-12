@@ -69,9 +69,6 @@ print("          BASE DE RECHERCHE CONSTITUTEE           ")
 print("***************************************************"
       "")
 
-# on demande la recherche souhaité
-
-
 print(""
       "")
 
@@ -128,35 +125,30 @@ def in_or_out(stay):
         print(resultat_nul)
         exit()
 
+def ecriture_csv(reponse_filtrage):
+    if to_csv == 'O' or to_csv =='o':
+        file = open(f'{question}.csv', "a", newline="", encoding='utf-8')
+        writer = csv.DictWriter(file, fieldnames=reponse_filtrage.keys())
+        writer.writeheader()
+        writer.writerow(reponse_filtrage)
+        file.close()
+        return reponse_filtrage
+    else:
+        pass
+
+
 
 question = input('entrez une recherche : ')
 reponse_filtrage = fonction_filtrage(question)
 
-print(reponse_filtrage.keys())
-print("***********************")
-print(reponse_filtrage.values())
-print("***********************")
 
 
-def ecriture_csv(reponse_filtrage):
-    with open(f'{question}.csv', "w") as file:
-        writer = csv.DictWriter(file, fieldnames=titres_obtenus)
-        writer.writeheader()
-        writer.writerow(reponse_filtrage)
-    return reponse_filtrage
-
-
-for element in reponse_filtrage:
-    ecriture_csv(reponse_filtrage[element])
-
-
-
-
-"""
 while reponse_filtrage:
     ouverture = input("Voulez vous ouvrir les liens ? : O/N ")
     if ouverture:
         open_url(ouverture)
+        to_csv = input("Voulez vous enregistrer les résultats dans un tableau ? : O/N ")
+        ecriture_csv(reponse_filtrage)
         new_search = input("Voulez vous effectuer une nouvelle recherche: O/N ")
         if new_search:
             in_or_out(new_search)
@@ -170,6 +162,7 @@ while not reponse_filtrage:
         ouverture = input("Voulez vous ouvrir les liens ? : O/N ")
         if ouverture:
             open_url(ouverture)
+            to_csv = input("Voulez vous enregistrer les résultats dans un tableau ? : O/N ")
+            ecriture_csv(reponse_filtrage)
         else:
             exit()
-"""
